@@ -5,14 +5,13 @@ import { Button } from "./ui/button";
 export function Navbar() {
   return (
     <header className="flex items-center justify-between bg-stone-100 px-4 py-3">
-      <Link className="flex items-center gap-2" to="#">
+      <Link className="flex items-center gap-2" to="/">
         <span className="text-lg font-semibold">Weed Tracker</span>
       </Link>
       <div className="flex items-center gap-4">
         <SignedIn>
           <div className="flex items-center gap-4">
-            <p>View your profile here 👇</p>
-            <UserButton />
+            <UserButton userProfileUrl="/me" />
           </div>
         </SignedIn>
         <SignedOut>
