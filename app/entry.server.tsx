@@ -1,6 +1,8 @@
 import * as Sentry from "@sentry/remix";
 import { RemixServer } from "@remix-run/react";
-import { handleRequest, type EntryContext } from "@vercel/remix";
+import type { AppLoadContext, EntryContext } from "@remix-run/cloudflare";
+import { renderToReadableStream } from "react-dom/server";
+import { isbot } from "isbot";
 
 export function handleError(error, { request }) {
   Sentry.captureRemixServerException(error, "remix.server", request);
@@ -16,7 +18,28 @@ export default async function (
   responseStatusCode: number,
   responseHeaders: Headers,
   remixContext: EntryContext,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  loadContext: AppLoadContext,
 ) {
-  const remixServer = <RemixServer context={remixContext} url={request.url} />;
-  return handleRequest(request, responseStatusCode, responseHeaders, remixServer);
+  const body = await renderToReadableStream(
+    <RemixServer context={remixContext} url={request.url} />,
+    {
+      signal: request.signal,
+      onError(error: unknown) {
+        // Log streaming rendering errors from inside the shell
+        console.error(error);
+        responseStatusCode = 500;
+      },
+    },
+  );
+
+  if (isbot(request.headers.get("user-agent") || "")) {
+    await body.allReady;
+  }
+
+  responseHeaders.set("Content-Type", "text/html");
+  return new Response(body, {
+    status: responseStatusCode,
+    headers: responseHeaders,
+  });
 }
