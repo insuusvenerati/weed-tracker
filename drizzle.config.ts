@@ -2,8 +2,9 @@ import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   schema: "./app/db.server.ts",
-  driver: "pg",
+  driver: "d1",
   dbCredentials: {
-    connectionString: process.env.POSTGRES_URL!,
+    wranglerConfigPath: "./wrangler.toml",
+    dbName: "weed-tracker",
   },
 });

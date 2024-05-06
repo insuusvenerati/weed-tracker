@@ -11,11 +11,43 @@ import { Button } from "~/components/ui/button";
 type TrackerProps = {
   strain: string;
   effects: string[];
-  rating: number;
+  rating: string;
   createdAt: string;
+  id: number;
 };
 
-export function Tracker({ effects, rating, strain, createdAt }: TrackerProps) {
+function TrackerRow({ effects, rating, strain, createdAt }: TrackerProps) {
+  const ratingNumber = parseInt(rating);
+  return (
+    <TableRow>
+      <TableCell className="hidden md:table-cell">{createdAt}</TableCell>
+      <TableCell>{strain}</TableCell>
+      <TableCell className="hidden md:table-cell">{effects.join(", ")}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-1">
+          {[...Array(5)].map((_, i) => (
+            <StarIcon
+              key={i}
+              className={`h-5 w-5 ${i < ratingNumber ? "fill-primary" : "stroke-muted-foreground"}`}
+            />
+          ))}
+        </div>
+      </TableCell>
+      <TableCell>
+        <Button size="sm" variant="ghost">
+          Edit
+        </Button>
+      </TableCell>
+      <TableCell>
+        <Button size="sm" variant="destructive">
+          Delete
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+export function Tracker({ rows }: { rows: TrackerProps[] }) {
   return (
     <div className="px-4 py-6 md:px-6 md:py-12 lg:py-16">
       <div className="mx-auto max-w-4xl">
@@ -41,61 +73,9 @@ export function Tracker({ effects, rating, strain, createdAt }: TrackerProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell className="hidden md:table-cell">{createdAt}</TableCell>
-                <TableCell>{strain}</TableCell>
-                <TableCell className="hidden md:table-cell">{effects.join(", ")}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    {[...Array(rating)].map((_, i) => (
-                      <StarIcon key={i} className="h-5 w-5 fill-primary" />
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Button size="sm" variant="ghost">
-                    Edit
-                  </Button>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="hidden md:table-cell">2023-04-15</TableCell>
-                <TableCell>Blue Dream</TableCell>
-                <TableCell className="hidden md:table-cell">Relaxing, Euphoric</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <StarIcon className="h-5 w-5 fill-primary" />
-                    <StarIcon className="h-5 w-5 fill-primary" />
-                    <StarIcon className="h-5 w-5 fill-primary" />
-                    <StarIcon className="h-5 w-5 fill-primary" />
-                    <StarIcon className="h-5 w-5 fill-muted stroke-muted-foreground" />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Button size="sm" variant="ghost">
-                    Edit
-                  </Button>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="hidden md:table-cell">2023-04-10</TableCell>
-                <TableCell>Gorilla Glue</TableCell>
-                <TableCell className="hidden md:table-cell">Sedating, Couch-Locking</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <StarIcon className="h-5 w-5 fill-primary" />
-                    <StarIcon className="h-5 w-5 fill-primary" />
-                    <StarIcon className="h-5 w-5 fill-primary" />
-                    <StarIcon className="h-5 w-5 fill-muted stroke-muted-foreground" />
-                    <StarIcon className="h-5 w-5 fill-muted stroke-muted-foreground" />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Button size="sm" variant="ghost">
-                    Edit
-                  </Button>
-                </TableCell>
-              </TableRow>
+              {rows.map((row) => (
+                <TrackerRow key={row.id} {...row} />
+              ))}
             </TableBody>
           </Table>
         </div>
