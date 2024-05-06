@@ -22,11 +22,13 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
 export const action = async ({ context }: ActionFunctionArgs) => {
   const db = drizzle(context.cloudflare.env.DB);
 
-  await db.insert(experiences).values({
+  const result = await db.insert(experiences).values({
     effects: ["Happy", "Energetic", "Uplifted"],
     rating: "3",
     strain: "Sour Diesel",
   });
+  
+  return json(result)
 };
 
 export default function Index() {
