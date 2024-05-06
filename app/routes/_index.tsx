@@ -19,17 +19,6 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
   return json(result);
 };
 
-export const action = async ({ context }: ActionFunctionArgs) => {
-  const db = drizzle(context.cloudflare.env.DB);
-
-  const result = await db.insert(experiences).values({
-    effects: ["Happy", "Energetic", "Uplifted"],
-    rating: "3",
-    strain: "Sour Diesel",
-  });
-  
-  return json(result)
-};
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
