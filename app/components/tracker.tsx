@@ -1,12 +1,15 @@
-import {
-  TableHead,
-  TableRow,
-  TableHeader,
-  TableCell,
-  TableBody,
-  Table,
-} from "~/components/ui/table";
+import { useFetcher } from "@remix-run/react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import { Input } from "./ui/input";
 
 type TrackerProps = {
   strain: string;
@@ -48,6 +51,19 @@ function TrackerRow({ effects, rating, strain, createdAt }: TrackerProps) {
 }
 
 export function Tracker({ rows }: { rows: TrackerProps[] }) {
+  const [isAdding, setIsAdding] = useState(false);
+  const [newExperience, setNewExperience] = useState({});
+  const fetcher = useFetcher();
+
+  const handleClick = () => {
+    setIsAdding((prev) => !prev);
+  };
+
+  const handleSaveClick = () => {
+    fetcher.submit(newExperience, { method: "POST" });
+    setIsAdding(false);
+  };
+
   return (
     <div className="px-4 py-6 md:px-6 md:py-12 lg:py-16">
       <div className="mx-auto max-w-4xl">
@@ -68,7 +84,9 @@ export function Tracker({ rows }: { rows: TrackerProps[] }) {
                 <TableHead className="hidden md:table-cell">Effects</TableHead>
                 <TableHead>Rating</TableHead>
                 <TableHead className="w-[100px]">
-                  <Button size="sm">Add</Button>
+                  <Button onClick={handleClick} size="sm">
+                    Add
+                  </Button>
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -76,6 +94,61 @@ export function Tracker({ rows }: { rows: TrackerProps[] }) {
               {rows.map((row) => (
                 <TrackerRow key={row.id} {...row} />
               ))}
+              {isAdding && (
+                <TableRow>
+                  <TableCell className="hidden md:table-cell">
+                    <Input
+                      onChange={(e) => setNewExperience({ ...newExperience, date: e.target.value })}
+                      name="date"
+                      type="date"
+                      placeholder="Date"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      required
+                      onChange={(e) =>
+                        setNewExperience({ ...newExperience, strain: e.target.value })
+                      }
+                      name="strain"
+                      type="text"
+                      placeholder="Strain"
+                    />
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <Input
+                      required
+                      onChange={(e) =>
+                        setNewExperience({ ...newExperience, effects: e.target.value })
+                      }
+                      name="effects"
+                      type="text"
+                      placeholder="Effects"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      required
+                      onChange={(e) =>
+                        setNewExperience({ ...newExperience, rating: e.target.value })
+                      }
+                      name="rating"
+                      type="number"
+                      placeholder="Rating"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button onClick={handleSaveClick} size="sm">
+                      Save
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button onClick={handleClick} size="sm" variant="destructive">
+                      Cancel
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
