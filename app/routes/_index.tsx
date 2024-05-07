@@ -1,3 +1,4 @@
+import { SignedIn } from "@clerk/remix";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import type { MetaFunction } from "@remix-run/node";
@@ -40,7 +41,9 @@ export default function Index() {
 
   return (
     <div className="container mx-auto">
-      <Tracker rows={data} />
+      <SignedIn>
+        <Tracker rows={data} />
+      </SignedIn>
     </div>
   );
 }
