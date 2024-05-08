@@ -28,7 +28,7 @@ export function Hero() {
             alt="Hero"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-bottom sm:w-full lg:order-last lg:aspect-square"
             height="550"
-            src="/placeholder.svg"
+            src="/hero.jpeg"
             width="550"
           />
         </div>
