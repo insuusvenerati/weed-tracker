@@ -50,7 +50,7 @@ function TrackerRow({ effects, rating, strain, createdAt }: TrackerProps) {
   );
 }
 
-export function Tracker({ rows }: { rows: TrackerProps[] }) {
+export function Tracker({ rows }: { rows: TrackerProps[] | null }) {
   const [isAdding, setIsAdding] = useState(false);
   const [newExperience, setNewExperience] = useState({});
   const fetcher = useFetcher();
@@ -91,9 +91,7 @@ export function Tracker({ rows }: { rows: TrackerProps[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((row) => (
-                <TrackerRow key={row.id} {...row} />
-              ))}
+              {rows?.map((row) => <TrackerRow key={row.id} {...row} />)}
               {isAdding && (
                 <TableRow>
                   <TableCell className="hidden md:table-cell">

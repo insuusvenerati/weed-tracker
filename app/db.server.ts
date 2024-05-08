@@ -1,12 +1,9 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export interface Env {
   DB: D1Database;
 }
-
-// Use this object to send drizzle queries to your DB
-// export const db = drizzle(env.DB);
 
 export const experiences = sqliteTable("experiences", {
   id: integer("id").primaryKey(),
@@ -16,4 +13,21 @@ export const experiences = sqliteTable("experiences", {
   createdAt: text("createdAt")
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
+  userId: text("user_id").notNull(),
 });
+
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey(),
+  userId: text("userId").notNull(), // From Clerk
+});
+
+export const userRelations = relations(users, ({ many }) => ({
+  experience: many(experiences),
+}));
+
+export const experiencesRelations = relations(experiences, ({ one }) => ({
+  user: one(users, {
+    fields: [experiences.userId],
+    references: [users.userId],
+  }),
+}));
