@@ -8,7 +8,9 @@ import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { CustomErrorBoundary } from "~/components/error-boundary";
+import { Hero } from "~/components/hero";
 import { Tracker } from "~/components/tracker";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { experiences } from "~/db.server";
 
 export const meta: MetaFunction = () => {
@@ -64,17 +66,22 @@ export default function Index() {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <div className="container mx-auto">
+    <>
       <SignedOut>
-        <div className="flex h-full flex-col items-center justify-center space-y-4">
-          <h1 className="text-3xl font-bold tracking-tight">Weed Tracker</h1>
-          <p className="text-gray-500 dark:text-gray-400">Track your weed-sperience</p>
-        </div>
+        <Hero />
       </SignedOut>
       <SignedIn>
+        <div className="container mx-auto py-4">
+          <Alert>
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              Some functionality is unfinished. Delete and Edit buttons currently not working
+            </AlertDescription>
+          </Alert>
+        </div>
         <Tracker rows={data} />
       </SignedIn>
-    </div>
+    </>
   );
 }
 

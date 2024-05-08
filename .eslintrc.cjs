@@ -39,6 +39,9 @@ module.exports = {
         react: {
           version: "detect",
         },
+        rules: {
+          "react/prop-types": "off",
+        },
         formComponents: ["Form"],
         linkComponents: [
           { name: "Link", linkAttribute: "to" },
@@ -55,6 +58,9 @@ module.exports = {
       files: ["**/*.{ts,tsx}"],
       plugins: ["@typescript-eslint", "import"],
       parser: "@typescript-eslint/parser",
+      rules: {
+        "react/prop-types": "off",
+      },
       settings: {
         "import/internal-regex": "^~/",
         "import/resolver": {
