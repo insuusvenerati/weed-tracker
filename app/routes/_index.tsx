@@ -12,35 +12,67 @@ import { Hero } from "~/components/hero";
 import { Tracker } from "~/components/tracker";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { experiences } from "~/db.server";
+import { z } from "zod";
+import { withZod } from "@remix-validated-form/with-zod";
+import { validationError } from "remix-validated-form";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Weed Tracker" }, { name: "description", content: "Track your weed-sperience" }];
 };
 
+export const validator = withZod(
+  z.object({
+    strain: z.string().min(1),
+    effects: z.string().min(1),
+    rating: z.string().min(1),
+  }),
+);
+
 export const action = async ({ context, request, params }: ActionFunctionArgs) => {
   const { userId } = await getAuth({ context, params, request });
+  const fieldValues = await validator.validate(await request.formData());
+  if (fieldValues.error) return validationError(fieldValues.error);
+
+  const {
+    data: { effects, rating, strain },
+  } = fieldValues;
 
   if (!userId) {
     throw new Response("Unauthorized", { status: 401 });
   }
 
   const db = drizzle(context.cloudflare.env.DB);
-  const formData = await request.formData();
-  const rating = formData.get("rating");
-  const effectsAsArray = (formData.get("effects") as string)
-    .split(",")
-    .map((effect) => effect.trim());
 
-  // Surely there is a better way
-  // and don't call me Shirley
+  const effectsAsArray = effects.split(",").map((effect) => effect.trim());
+
   if (rating !== "1" && rating !== "2" && rating !== "3" && rating !== "4" && rating !== "5") {
     throw new Response("Invalid rating", { status: 400 });
   }
 
+  // if (action === "edit") {
+  //   if (!id) {
+  //     throw new Response("Missing id", { status: 400 });
+  //   }
+
+  //   const result = await db
+  //     .update(experiences)
+  //     .set({
+  //       effects: effectsAsArray,
+  //       strain,
+  //       rating,
+  //     })
+  //     .where(eq(experiences.id, parseInt(id)));
+
+  //   return json(result);
+  // }
+
+  // Surely there is a better way
+  // and don't call me Shirley
+
   const result = await db.insert(experiences).values({
     effects: effectsAsArray,
-    strain: formData.get("strain") as string,
-    rating: rating,
+    strain,
+    rating,
     createdAt: new Date().toISOString(),
     userId,
   });
@@ -87,6 +119,7 @@ export default function Index() {
 
 export const ErrorBoundary = () => {
   const error = useRouteError();
+  console.error(error);
   captureRemixErrorBoundaryError(error);
   return <CustomErrorBoundary />;
 };

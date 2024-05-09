@@ -10,6 +10,8 @@ export const experiences = sqliteTable("experiences", {
   strain: text("strain").notNull(),
   rating: text("rating", { enum: ["1", "2", "3", "4", "5"] }).notNull(),
   effects: text("effects", { mode: "json" }).notNull().$type<string[]>(),
+  description: text("description"),
+  image: text("image"),
   createdAt: text("createdAt")
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
