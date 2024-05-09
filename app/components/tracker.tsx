@@ -1,5 +1,6 @@
-import { useFetcher } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 import { useState } from "react";
+import { ValidatedForm } from "remix-validated-form";
 import { Button } from "~/components/ui/button";
 import {
   Table,
@@ -9,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { validator } from "~/routes/_index";
+import { StarRating } from "./star-rating";
 import { Input } from "./ui/input";
 
 type TrackerProps = {
@@ -19,32 +22,17 @@ type TrackerProps = {
   id: number;
 };
 
-function TrackerRow({ effects, rating, strain, createdAt }: TrackerProps) {
-  const ratingNumber = parseInt(rating);
+function TrackerRow({ effects, rating, strain, createdAt, id }: TrackerProps) {
+  const formatedDate = new Date(createdAt);
   return (
     <TableRow>
-      <TableCell className="hidden md:table-cell">{createdAt}</TableCell>
-      <TableCell>{strain}</TableCell>
+      <TableCell className="hidden md:table-cell">{formatedDate.toLocaleDateString()}</TableCell>
+      <TableCell>
+        <Link to={`/strains/${id}`}>{strain}</Link>
+      </TableCell>
       <TableCell className="hidden md:table-cell">{effects.join(", ")}</TableCell>
       <TableCell>
-        <div className="flex items-center gap-1">
-          {[...Array(5)].map((_, i) => (
-            <StarIcon
-              key={i}
-              className={`h-5 w-5 ${i < ratingNumber ? "fill-primary" : "stroke-muted-foreground"}`}
-            />
-          ))}
-        </div>
-      </TableCell>
-      <TableCell>
-        <Button size="sm" variant="ghost">
-          Edit
-        </Button>
-      </TableCell>
-      <TableCell>
-        <Button size="sm" variant="destructive">
-          Delete
-        </Button>
+        <StarRating rating={rating} />
       </TableCell>
     </TableRow>
   );
@@ -52,16 +40,9 @@ function TrackerRow({ effects, rating, strain, createdAt }: TrackerProps) {
 
 export function Tracker({ rows }: { rows: TrackerProps[] | null }) {
   const [isAdding, setIsAdding] = useState(false);
-  const [newExperience, setNewExperience] = useState({});
-  const fetcher = useFetcher();
 
   const handleClick = () => {
     setIsAdding((prev) => !prev);
-  };
-
-  const handleSaveClick = () => {
-    fetcher.submit(newExperience, { method: "POST" });
-    setIsAdding(false);
   };
 
   return (
@@ -76,100 +57,56 @@ export function Tracker({ rows }: { rows: TrackerProps[] | null }) {
           </p>
         </div>
         <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="hidden md:table-cell">Date</TableHead>
-                <TableHead>Strain</TableHead>
-                <TableHead className="hidden md:table-cell">Effects</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead className="w-[100px]">
-                  <Button onClick={handleClick} size="sm">
-                    Add
-                  </Button>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows?.map((row) => <TrackerRow key={row.id} {...row} />)}
-              {isAdding && (
+          <ValidatedForm method="POST" validator={validator}>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell className="hidden md:table-cell">
-                    <Input
-                      onChange={(e) => setNewExperience({ ...newExperience, date: e.target.value })}
-                      name="date"
-                      type="date"
-                      placeholder="Date"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      required
-                      onChange={(e) =>
-                        setNewExperience({ ...newExperience, strain: e.target.value })
-                      }
-                      name="strain"
-                      type="text"
-                      placeholder="Strain"
-                    />
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Input
-                      required
-                      onChange={(e) =>
-                        setNewExperience({ ...newExperience, effects: e.target.value })
-                      }
-                      name="effects"
-                      type="text"
-                      placeholder="Effects"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      required
-                      onChange={(e) =>
-                        setNewExperience({ ...newExperience, rating: e.target.value })
-                      }
-                      name="rating"
-                      type="number"
-                      placeholder="Rating"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button onClick={handleSaveClick} size="sm">
-                      Save
+                  <TableHead className="hidden md:table-cell">Date</TableHead>
+                  <TableHead>Strain</TableHead>
+                  <TableHead className="hidden md:table-cell">Effects</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead className="w-[100px]">
+                    <Button onClick={handleClick} size="sm">
+                      Add
                     </Button>
-                  </TableCell>
-                  <TableCell>
-                    <Button onClick={handleClick} size="sm" variant="destructive">
-                      Cancel
-                    </Button>
-                  </TableCell>
+                  </TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {rows?.map((row) => {
+                  return <TrackerRow key={row.id} {...row} />;
+                })}
+                {isAdding && (
+                  <TableRow>
+                    <TableCell className="hidden md:table-cell">
+                      <Input name="date" type="date" placeholder="Date" />
+                    </TableCell>
+                    <TableCell>
+                      <Input required name="strain" type="text" placeholder="Strain" />
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Input required name="effects" type="text" placeholder="Effects" />
+                    </TableCell>
+                    <TableCell>
+                      <Input required name="rating" type="number" placeholder="Rating" />
+                    </TableCell>
+                    <TableCell>
+                      <Button type="submit" size="sm">
+                        Save
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      <Button onClick={handleClick} size="sm" variant="destructive">
+                        Cancel
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </ValidatedForm>
         </div>
       </div>
     </div>
-  );
-}
-
-function StarIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
   );
 }
