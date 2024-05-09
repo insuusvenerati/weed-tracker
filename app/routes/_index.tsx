@@ -4,17 +4,16 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudfla
 import { json } from "@remix-run/cloudflare";
 import type { MetaFunction } from "@remix-run/node";
 import { useLoaderData, useRouteError } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
+import { validationError } from "remix-validated-form";
+import { z } from "zod";
 import { CustomErrorBoundary } from "~/components/error-boundary";
 import { Hero } from "~/components/hero";
 import { Tracker } from "~/components/tracker";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { experiences } from "~/db.server";
-import { z } from "zod";
-import { withZod } from "@remix-validated-form/with-zod";
-import { validationError } from "remix-validated-form";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Weed Tracker" }, { name: "description", content: "Track your weed-sperience" }];
@@ -25,7 +24,7 @@ export const validator = withZod(
     strain: z.string().min(1),
     effects: z.string().min(1),
     rating: z.string().min(1),
-    description: z.string().min(1),
+    description: z.string().min(1).optional(),
     image: z.string().optional(),
   }),
 );

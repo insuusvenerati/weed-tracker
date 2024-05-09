@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 import { useState } from "react";
-import { ValidatedForm } from "remix-validated-form";
+import { ValidatedForm, useFormContext } from "remix-validated-form";
 import { Button } from "~/components/ui/button";
 import {
   Table,
@@ -40,6 +40,7 @@ function TrackerRow({ effects, rating, strain, createdAt, id }: TrackerProps) {
 
 export function Tracker({ rows }: { rows: TrackerProps[] | null }) {
   const [isAdding, setIsAdding] = useState(false);
+  const { fieldErrors } = useFormContext("newExp");
 
   const handleClick = () => {
     setIsAdding((prev) => !prev);
@@ -57,7 +58,7 @@ export function Tracker({ rows }: { rows: TrackerProps[] | null }) {
           </p>
         </div>
         <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
-          <ValidatedForm method="POST" validator={validator}>
+          <ValidatedForm id="newExp" method="POST" validator={validator}>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -66,7 +67,7 @@ export function Tracker({ rows }: { rows: TrackerProps[] | null }) {
                   <TableHead className="hidden md:table-cell">Effects</TableHead>
                   <TableHead>Rating</TableHead>
                   <TableHead className="w-[100px]">
-                    <Button onClick={handleClick} size="sm">
+                    <Button type="button" onClick={handleClick} size="sm">
                       Add
                     </Button>
                   </TableHead>
@@ -83,12 +84,24 @@ export function Tracker({ rows }: { rows: TrackerProps[] | null }) {
                     </TableCell>
                     <TableCell>
                       <Input required name="strain" type="text" placeholder="Strain" />
+                      {fieldErrors?.strain && <p className="text-red-500">{fieldErrors.strain}</p>}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <Input required name="effects" type="text" placeholder="Effects" />
+                      {fieldErrors?.effects && (
+                        <p className="text-red-500">{fieldErrors.effects}</p>
+                      )}
                     </TableCell>
                     <TableCell>
-                      <Input required name="rating" type="number" placeholder="Rating" />
+                      <Input
+                        min={1}
+                        max={5}
+                        required
+                        name="rating"
+                        type="number"
+                        placeholder="Rating"
+                      />
+                      {fieldErrors?.rating && <p className="text-red-500">{fieldErrors.rating}</p>}
                     </TableCell>
                     <TableCell>
                       <Button type="submit" size="sm">
