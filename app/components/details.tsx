@@ -1,13 +1,24 @@
-import { Star } from "lucide-react";
+import { useAuth } from "@clerk/remix";
+import { Link } from "@remix-run/react";
+import { GripHorizontal } from "lucide-react";
 import { StarRating } from "./star-rating";
+import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 type DetailsProps = {
-  description: string;
+  description?: string | null;
   strain: string;
   effects: string[];
   rating: "1" | "2" | "3" | "4" | "5";
   createdAt: string;
   id: number;
+  image?: string | null;
+  userId: string;
 };
 
 function Effect({ effect }: { effect: string }) {
@@ -18,13 +29,48 @@ function Effect({ effect }: { effect: string }) {
   );
 }
 
-export function Details({ description, strain, effects, rating, createdAt, id }: DetailsProps) {
+export function Details({
+  description,
+  strain,
+  effects,
+  rating,
+  createdAt,
+  id,
+  image,
+  userId,
+}: DetailsProps) {
+  const { userId: signedInUserId } = useAuth();
+
   const formattedData = new Date(createdAt).toLocaleDateString();
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div>
-          <h1 className="mb-2 text-3xl font-bold">{strain}</h1>
+          <div className="mb-4 flex items-center justify-between">
+            <h1 className="mb-2 text-3xl font-bold">{strain}</h1>
+            {userId === signedInUserId && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="ghost">
+                    <GripHorizontal className="h-5 w-5" />
+                    <span className="sr-only">Edit</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <Button asChild className="w-full justify-start" variant="ghost">
+                      <Link to={`/strains/${id}/update`}>Edit</Link>
+                    </Button>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Button asChild className="w-full justify-start" variant="destructive">
+                      <Link to={`/strains/${id}/delete`}>Delete</Link>
+                    </Button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
           <p className="mb-4 text-gray-500">{description}</p>
           <div className="mb-4 flex items-center">
             <div className="mr-4 flex items-center">
@@ -52,10 +98,10 @@ export function Details({ description, strain, effects, rating, createdAt, id }:
         </div>
         <div className="flex items-center justify-center">
           <img
-            alt="Sour Diesel"
+            alt={strain}
             className="rounded-lg shadow-lg"
             height={400}
-            src="/placeholder.svg"
+            src={image ?? "/placeholder.svg"}
             style={{
               aspectRatio: "400/400",
               objectFit: "cover",
@@ -103,25 +149,6 @@ function LeafIcon(props: React.SVGProps<SVGSVGElement>) {
     >
       <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
       <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-    </svg>
-  );
-}
-
-function StarIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   );
 }

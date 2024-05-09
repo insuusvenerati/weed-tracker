@@ -25,6 +25,8 @@ export const validator = withZod(
     strain: z.string().min(1),
     effects: z.string().min(1),
     rating: z.string().min(1),
+    description: z.string().min(1),
+    image: z.string().optional(),
   }),
 );
 
@@ -34,7 +36,7 @@ export const action = async ({ context, request, params }: ActionFunctionArgs) =
   if (fieldValues.error) return validationError(fieldValues.error);
 
   const {
-    data: { effects, rating, strain },
+    data: { effects, rating, strain, description, image },
   } = fieldValues;
 
   if (!userId) {
@@ -49,32 +51,14 @@ export const action = async ({ context, request, params }: ActionFunctionArgs) =
     throw new Response("Invalid rating", { status: 400 });
   }
 
-  // if (action === "edit") {
-  //   if (!id) {
-  //     throw new Response("Missing id", { status: 400 });
-  //   }
-
-  //   const result = await db
-  //     .update(experiences)
-  //     .set({
-  //       effects: effectsAsArray,
-  //       strain,
-  //       rating,
-  //     })
-  //     .where(eq(experiences.id, parseInt(id)));
-
-  //   return json(result);
-  // }
-
-  // Surely there is a better way
-  // and don't call me Shirley
-
   const result = await db.insert(experiences).values({
     effects: effectsAsArray,
     strain,
     rating,
     createdAt: new Date().toISOString(),
     userId,
+    description,
+    image,
   });
 
   return json(result);

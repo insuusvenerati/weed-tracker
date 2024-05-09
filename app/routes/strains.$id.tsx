@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/cloudflare";
-import { useLoaderData, useRouteError } from "@remix-run/react";
+import { Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 import { captureRemixErrorBoundaryError } from "@sentry/remix";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
@@ -27,11 +27,10 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
 
 const DetailsPage = () => {
   const data = useLoaderData<typeof loader>();
-
-  console.log(data);
   return (
     <div>
       <Details {...data} />
+      <Outlet />
     </div>
   );
 };

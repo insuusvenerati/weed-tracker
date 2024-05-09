@@ -34,11 +34,6 @@ function TrackerRow({ effects, rating, strain, createdAt, id }: TrackerProps) {
       <TableCell>
         <StarRating rating={rating} />
       </TableCell>
-      <TableCell>
-        <Button size="sm" variant="destructive">
-          Delete
-        </Button>
-      </TableCell>
     </TableRow>
   );
 }
