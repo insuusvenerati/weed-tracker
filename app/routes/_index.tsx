@@ -87,14 +87,6 @@ export default function Index() {
         <Hero />
       </SignedOut>
       <SignedIn>
-        <div className="container mx-auto py-4">
-          <Alert>
-            <AlertTitle>Heads up!</AlertTitle>
-            <AlertDescription>
-              Some functionality is unfinished. Delete and Edit buttons currently not working
-            </AlertDescription>
-          </Alert>
-        </div>
         <Tracker rows={data} />
       </SignedIn>
     </>
